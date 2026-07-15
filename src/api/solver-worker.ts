@@ -4,8 +4,10 @@ import * as solverWasm from "../../pkg/solver_wasm";
 
 // ── WASM initialisation ──────────────────────────────────────
 
-const { solve, validate } = solverWasm;
-const initWasm = solverWasm.default as unknown as () => Promise<void>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const wasm = solverWasm as any;
+const { solve, validate } = wasm;
+const initWasm = wasm.default as () => Promise<void>;
 
 let ready = false;
 const initPromise: Promise<void> = (async () => {
