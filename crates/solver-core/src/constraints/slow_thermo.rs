@@ -47,18 +47,18 @@ impl SlowThermoConstraint {
     }
 
     /// Forward pass: position i must be >= every possible value at i-1.
+    ///
+    /// Equivalent to: position i must be >= the **minimum** candidate of i-1
+    /// (because range_mask(v, n) is monotonic — the union over all v equals
+    /// the mask from the smallest v).  O(k) via trailing_zeros.
     fn forward_support(&self, domains: &[u32]) -> Option<Vec<u32>> {
         let mut supported: Vec<u32> = vec![0; self.k];
         supported[0] = domains[0];
 
         for i in 1..self.k {
-            let mut mask: u32 = 0;
-            for value in 1..=self.n as u32 {
-                if supported[i - 1] & (1u32 << (value - 1)) != 0 {
-                    mask |= self.range_mask(value, self.n as u32);
-                }
-            }
-            mask &= domains[i];
+            // Smallest value still possible at position i-1
+            let min_prev = supported[i - 1].trailing_zeros() + 1;
+            let mask = domains[i] & self.range_mask(min_prev, self.n as u32);
             if mask == 0 {
                 return None;
             }
@@ -69,18 +69,18 @@ impl SlowThermoConstraint {
     }
 
     /// Backward pass: position i must be <= every possible value at i+1.
+    ///
+    /// Equivalent to: position i must be <= the **maximum** candidate of i+1
+    /// (because range_mask(1, v) is monotonic — the union over all v equals
+    /// the mask from the largest v).  O(k) via leading_zeros.
     fn backward_support(&self, domains: &[u32]) -> Option<Vec<u32>> {
         let mut supported: Vec<u32> = vec![0; self.k];
         supported[self.k - 1] = domains[self.k - 1];
 
         for i in (0..self.k - 1).rev() {
-            let mut mask: u32 = 0;
-            for value in 1..=self.n as u32 {
-                if supported[i + 1] & (1u32 << (value - 1)) != 0 {
-                    mask |= self.range_mask(1, value);
-                }
-            }
-            mask &= domains[i];
+            // Largest value still possible at position i+1
+            let max_next = 32 - supported[i + 1].leading_zeros();
+            let mask = domains[i] & self.range_mask(1, max_next);
             if mask == 0 {
                 return None;
             }
