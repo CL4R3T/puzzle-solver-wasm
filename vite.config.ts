@@ -6,7 +6,6 @@ export default defineConfig({
   plugins: [react(), wasm()],
   worker: {
     format: "es",
-    plugins: () => [wasm()],
   },
   optimizeDeps: {
     exclude: ["pkg/solver_wasm"],
