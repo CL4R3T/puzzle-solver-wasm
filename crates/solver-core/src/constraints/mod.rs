@@ -4,6 +4,7 @@ pub mod diagonal;
 pub mod killer_cage;
 pub mod palindrome;
 pub mod row;
+pub mod slow_thermo;
 pub mod thermo;
 
 use crate::constraint::Constraint;
@@ -16,6 +17,7 @@ use diagonal::DiagonalConstraint;
 use killer_cage::KillerCageConstraint;
 use palindrome::PalindromeConstraint;
 use row::RowConstraint;
+use slow_thermo::SlowThermoConstraint;
 use thermo::ThermoConstraint;
 
 /// Compile-time dispatch over all constraint types.
@@ -26,6 +28,7 @@ pub enum ConstraintKind {
     Diagonal(DiagonalConstraint),
     KillerCage(KillerCageConstraint),
     Thermo(ThermoConstraint),
+    SlowThermo(SlowThermoConstraint),
     Palindrome(PalindromeConstraint),
 }
 
@@ -38,6 +41,7 @@ impl Constraint for ConstraintKind {
             Self::Diagonal(c) => c.propagate(state),
             Self::KillerCage(c) => c.propagate(state),
             Self::Thermo(c) => c.propagate(state),
+            Self::SlowThermo(c) => c.propagate(state),
             Self::Palindrome(c) => c.propagate(state),
         }
     }
@@ -50,6 +54,7 @@ impl Constraint for ConstraintKind {
             Self::Diagonal(c) => c.validate(state),
             Self::KillerCage(c) => c.validate(state),
             Self::Thermo(c) => c.validate(state),
+            Self::SlowThermo(c) => c.validate(state),
             Self::Palindrome(c) => c.validate(state),
         }
     }
