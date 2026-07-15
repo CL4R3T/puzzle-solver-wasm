@@ -1,10 +1,11 @@
 /// <reference types="vite/client" />
 
-import __wbg_init, { solve, validate } from "../../pkg/solver_wasm";
+import * as solverWasm from "../../pkg/solver_wasm";
 
 // ── WASM initialisation ──────────────────────────────────────
 
-const initWasm = __wbg_init as unknown as () => Promise<unknown>;
+const { solve, validate } = solverWasm;
+const initWasm = solverWasm.default as unknown as () => Promise<void>;
 
 let ready = false;
 const initPromise: Promise<void> = (async () => {
