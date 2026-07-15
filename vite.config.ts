@@ -4,6 +4,7 @@ import wasm from "vite-plugin-wasm";
 
 export default defineConfig({
   plugins: [react(), wasm()],
+  assetsInclude: ["**/*.wasm"],
   worker: {
     format: "es",
   },
