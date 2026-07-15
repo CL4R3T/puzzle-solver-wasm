@@ -12,3 +12,6 @@ solver-core = { path = "../solver-core" }
 wasm-bindgen = "0.2"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
