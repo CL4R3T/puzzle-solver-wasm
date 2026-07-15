@@ -16,7 +16,7 @@ pub struct NumberPuzzleSolver {
     /// Maximum propagation cycles before timing out.
     max_iterations: u64,
     /// Instant when solving started (set by `solve()`).
-    solve_start: Option<std::time::Instant>,
+    solve_start: Option<instant::Instant>,
 }
 
 impl NumberPuzzleSolver {
@@ -154,7 +154,7 @@ impl NumberPuzzleSolver {
     /// Attempt to solve.  Returns `Some(solution)` on success, `None` if
     /// unsolvable or timed out.
     pub fn solve(&mut self) -> Option<Vec<Vec<u32>>> {
-        self.solve_start = Some(std::time::Instant::now());
+        self.solve_start = Some(instant::Instant::now());
         if self.solve_with_cp() {
             Some(self.state.cells.clone())
         } else {
@@ -164,7 +164,7 @@ impl NumberPuzzleSolver {
 
     /// Solve and return a structured `SolveResult` (with timing).
     pub fn solve_with_result(&mut self) -> SolveResult {
-        let start = std::time::Instant::now();
+        let start = instant::Instant::now();
         self.solve_start = Some(start);
         if self.solve_with_cp() {
             SolveResult {
