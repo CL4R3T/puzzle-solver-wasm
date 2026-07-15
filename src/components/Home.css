@@ -1,0 +1,15 @@
+.home-main {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.home-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.home-text + .home-text {
+  margin-top: 1.5rem;
+}
