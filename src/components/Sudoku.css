@@ -102,7 +102,10 @@
   background: var(--btn-bg);
   color: var(--btn-text);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
   box-shadow: var(--shadow-sm);
 }
 
@@ -285,7 +288,9 @@
   background: var(--btn-bg);
   color: var(--btn-text);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 
 .constraint-toolbar button:hover:not(:disabled) {
@@ -476,7 +481,9 @@
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: border-color 0.15s, transform 0.1s;
+  transition:
+    border-color 0.15s,
+    transform 0.1s;
 }
 
 .color-swatch:hover {
@@ -486,7 +493,9 @@
 
 .color-swatch.selected {
   border-color: var(--text);
-  box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--text);
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 3px var(--text);
 }
 
 .editor-actions {
@@ -517,4 +526,3 @@
 .editor-actions button.danger:hover {
   background: var(--error-bg);
 }
-

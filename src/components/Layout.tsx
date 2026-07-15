@@ -1,24 +1,28 @@
-import { useState } from 'react'
-import './Layout.css'
+import { useState } from "react";
+import "./Layout.css";
 
 interface PuzzleType {
-  id: string
-  name: string
-  icon: string
+  id: string;
+  name: string;
+  icon: string;
 }
 
 const puzzleTypes: PuzzleType[] = [
-  { id: 'home', name: '首页', icon: '⌂' },
-  { id: 'sudoku', name: '数独求解器', icon: '⊞' },
-]
+  { id: "home", name: "首页", icon: "⌂" },
+  { id: "sudoku", name: "数独求解器", icon: "⊞" },
+];
 
 interface LayoutProps {
-  children: React.ReactNode
-  activePuzzle: string
-  onNavigate: (id: string) => void
+  children: React.ReactNode;
+  activePuzzle: string;
+  onNavigate: (id: string) => void;
 }
 
-export default function Layout({ children, activePuzzle, onNavigate }: LayoutProps) {
+export default function Layout({
+  children,
+  activePuzzle,
+  onNavigate,
+}: LayoutProps) {
   return (
     <div className="layout">
       <aside className="sidebar">
@@ -26,10 +30,10 @@ export default function Layout({ children, activePuzzle, onNavigate }: LayoutPro
           <h2>纸笔求解器</h2>
         </div>
         <nav className="sidebar-nav">
-          {puzzleTypes.map(puzzle => (
+          {puzzleTypes.map((puzzle) => (
             <button
               key={puzzle.id}
-              className={`nav-item ${activePuzzle === puzzle.id ? 'active' : ''}`}
+              className={`nav-item ${activePuzzle === puzzle.id ? "active" : ""}`}
               onClick={() => onNavigate(puzzle.id)}
             >
               <span className="nav-icon">{puzzle.icon}</span>
@@ -38,15 +42,13 @@ export default function Layout({ children, activePuzzle, onNavigate }: LayoutPro
           ))}
         </nav>
       </aside>
-      <main className="main-content">
-        {children}
-      </main>
+      <main className="main-content">{children}</main>
     </div>
-  )
+  );
 }
 
 export function usePuzzleNavigation() {
-  const [activePuzzle, setActivePuzzle] = useState<string>('home')
-  const navigate = (id: string) => setActivePuzzle(id)
-  return { activePuzzle, navigate }
+  const [activePuzzle, setActivePuzzle] = useState<string>("home");
+  const navigate = (id: string) => setActivePuzzle(id);
+  return { activePuzzle, navigate };
 }

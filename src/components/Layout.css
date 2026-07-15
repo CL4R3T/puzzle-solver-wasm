@@ -42,7 +42,9 @@
   cursor: pointer;
   font-size: 0.95rem;
   text-align: left;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .nav-item:hover {

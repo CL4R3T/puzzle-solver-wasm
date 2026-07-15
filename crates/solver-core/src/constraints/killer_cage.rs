@@ -63,11 +63,7 @@ impl KillerCageConstraint {
         let used: std::collections::HashSet<u32> = current_combo.iter().copied().collect();
 
         for cand in candidates.iter().skip(idx) {
-            let avail: Vec<u32> = cand
-                .iter()
-                .copied()
-                .filter(|v| !used.contains(v))
-                .collect();
+            let avail: Vec<u32> = cand.iter().copied().filter(|v| !used.contains(v)).collect();
             if avail.is_empty() {
                 return; // a cell has no usable value, prune
             }

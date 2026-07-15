@@ -1,4 +1,4 @@
-import './Home.css'
+import "./Home.css";
 
 export default function Home() {
   return (
@@ -11,10 +11,8 @@ export default function Home() {
           这是一个通用的谜题求解 Web 应用，目前支持数独求解功能。
           您可以在左侧导航栏中选择不同的谜题类型进行求解。
         </p>
-        <p className="home-text">
-          更多谜题类型正在开发中，敬请期待...
-        </p>
+        <p className="home-text">更多谜题类型正在开发中，敬请期待...</p>
       </main>
     </div>
-  )
+  );
 }
