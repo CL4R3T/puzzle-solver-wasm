@@ -39,16 +39,9 @@
   border: none;
   border-radius: 6px;
   color: var(--sidebar-text);
-  cursor: pointer;
+  cursor: default;
   font-size: 0.95rem;
   text-align: left;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.nav-item:hover {
-  background: var(--sidebar-hover);
 }
 
 .nav-item.active {

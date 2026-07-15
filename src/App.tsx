@@ -1,14 +1,10 @@
-import Layout, { usePuzzleNavigation } from "./components/Layout";
-import Home from "./components/Home";
+import Layout from "./components/Layout";
 import Sudoku from "./components/Sudoku";
 
 export default function App() {
-  const { activePuzzle, navigate } = usePuzzleNavigation();
-
   return (
-    <Layout activePuzzle={activePuzzle} onNavigate={navigate}>
-      {activePuzzle === "home" && <Home />}
-      {activePuzzle === "sudoku" && <Sudoku />}
+    <Layout>
+      <Sudoku />
     </Layout>
   );
 }
