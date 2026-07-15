@@ -1,17 +1,16 @@
 /// <reference types="vite/client" />
 
-import * as solverWasm from "../../pkg/solver_wasm";
+import { initSync, solve, validate } from "../../pkg/solver_wasm";
 
 // ── WASM initialisation ──────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const wasm = solverWasm as any;
-const { solve, validate } = wasm;
-const initWasm = wasm.default as () => Promise<void>;
-
 let ready = false;
 const initPromise: Promise<void> = (async () => {
-  await initWasm();
+  const wasmUrl = new URL("../../pkg/solver_wasm_bg.wasm", import.meta.url);
+  const resp = await fetch(wasmUrl);
+  if (!resp.ok) throw new Error(`Failed to load WASM: ${resp.status}`);
+  const bytes = await resp.arrayBuffer();
+  initSync(bytes);
   ready = true;
 })();
 
