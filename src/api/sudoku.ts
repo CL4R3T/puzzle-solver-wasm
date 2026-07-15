@@ -20,6 +20,7 @@ export interface SolveParams {
   diagonals?: boolean;
   cages?: { cells: [number, number][]; sum: number }[];
   thermos?: [number, number][][];
+  slowThermos?: [number, number][][];
   palindromes?: [number, number][][];
 }
 
@@ -90,6 +91,8 @@ function buildParams(params: SolveParams): Record<string, unknown> {
   if (params.diagonals) p.diagonals = true;
   if (params.cages && params.cages.length > 0) p.cages = params.cages;
   if (params.thermos && params.thermos.length > 0) p.thermos = params.thermos;
+  if (params.slowThermos && params.slowThermos.length > 0)
+    p.slow_thermos = params.slowThermos;
   if (params.palindromes && params.palindromes.length > 0)
     p.palindromes = params.palindromes;
   return p;

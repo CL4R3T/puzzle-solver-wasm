@@ -46,10 +46,17 @@ export const CONSTRAINT_DEFS: ConstraintDef[] = [
   },
   {
     type: "thermometer",
-    label: "温度计",
+    label: "温度计 (>)",
     category: "path",
     params: [],
     defaultColor: "#fb923c",
+  },
+  {
+    type: "slow_thermometer",
+    label: "慢温度计 (≥)",
+    category: "path",
+    params: [],
+    defaultColor: "#fbbf24",
   },
   {
     type: "palindrome",

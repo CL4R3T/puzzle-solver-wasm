@@ -6,6 +6,7 @@ use crate::constraints::diagonal::DiagonalConstraint;
 use crate::constraints::killer_cage::KillerCageConstraint;
 use crate::constraints::palindrome::PalindromeConstraint;
 use crate::constraints::row::RowConstraint;
+use crate::constraints::slow_thermo::SlowThermoConstraint;
 use crate::constraints::thermo::ThermoConstraint;
 use crate::constraints::ConstraintKind;
 
@@ -24,9 +25,12 @@ pub struct SudokuParams {
     /// Killer cage definitions.
     #[serde(default)]
     pub cages: Vec<CageDef>,
-    /// Thermometer paths.
+    /// Thermometer paths (strictly increasing).
     #[serde(default)]
     pub thermos: Vec<PathDef>,
+    /// Slow thermometer paths (non-decreasing, >=).
+    #[serde(default)]
+    pub slow_thermos: Vec<PathDef>,
     /// Palindrome paths.
     #[serde(default)]
     pub palindromes: Vec<PathDef>,
@@ -43,6 +47,7 @@ impl Default for SudokuParams {
             diagonals: false,
             cages: Vec::new(),
             thermos: Vec::new(),
+            slow_thermos: Vec::new(),
             palindromes: Vec::new(),
         }
     }
@@ -101,6 +106,13 @@ pub fn build_sudoku_constraints(n: usize, params: &SudokuParams) -> Vec<Constrai
         let cells: Vec<(usize, usize)> = thermo.iter().map(|&[r, c]| (r, c)).collect();
         if let Ok(tc) = ThermoConstraint::new(n, cells) {
             constraints.push(ConstraintKind::Thermo(tc));
+        }
+    }
+
+    for slow in &params.slow_thermos {
+        let cells: Vec<(usize, usize)> = slow.iter().map(|&[r, c]| (r, c)).collect();
+        if let Ok(sc) = SlowThermoConstraint::new(n, cells) {
+            constraints.push(ConstraintKind::SlowThermo(sc));
         }
     }
 
@@ -175,6 +187,56 @@ mod tests {
         let constraints = build_sudoku_constraints(9, &params);
         // Should have Row + Col + Box + Diagonal = 4
         assert_eq!(constraints.len(), 4);
+    }
+
+    #[test]
+    fn test_slow_thermo_deserialize() {
+        let json = r#"{
+            "board": [[0,0,0],[0,0,0],[0,0,0]],
+            "params": {
+                "box_shape": [1,3],
+                "slow_thermos": [[[0,0],[0,1],[0,2]]]
+            }
+        }"#;
+        let input: SolveInput = serde_json::from_str(json).unwrap();
+        assert_eq!(input.params.slow_thermos.len(), 1);
+        assert_eq!(input.params.slow_thermos[0].len(), 3);
+    }
+
+    #[test]
+    fn test_slow_thermo_solve() {
+        let json = r#"{
+            "board": [[0,0,0],[0,0,0],[0,0,0]],
+            "params": {
+                "box_shape": [1,3],
+                "slow_thermos": [[[0,0],[0,1],[0,2]]]
+            }
+        }"#;
+        let input: SolveInput = serde_json::from_str(json).unwrap();
+        let n = input.board.len();
+        let constraints = build_sudoku_constraints(n, &input.params);
+        // Row + Col + Box + 1 slow thermo = 4
+        assert_eq!(
+            constraints.len(),
+            4,
+            "expected 4 constraints, got {}",
+            constraints.len()
+        );
+        let mut solver = NumberPuzzleSolver::new(input.board, constraints).unwrap();
+        let sol = solver.solve().unwrap();
+        // Slow thermo: non-decreasing along path (each >= previous)
+        assert!(
+            sol[0][1] >= sol[0][0],
+            "slow thermo violated: {} < {}",
+            sol[0][1],
+            sol[0][0]
+        );
+        assert!(
+            sol[0][2] >= sol[0][1],
+            "slow thermo violated: {} < {}",
+            sol[0][2],
+            sol[0][1]
+        );
     }
 
     #[test]

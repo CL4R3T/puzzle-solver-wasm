@@ -310,6 +310,12 @@ export default function Sudoku() {
       .filter((c) => c.constraintType === "thermometer" && c.cells.length >= 2)
       .map((c) => c.cells);
     if (thermos.length > 0) p.thermos = thermos;
+    const slowThermos = constraints
+      .filter(
+        (c) => c.constraintType === "slow_thermometer" && c.cells.length >= 2,
+      )
+      .map((c) => c.cells);
+    if (slowThermos.length > 0) p.slowThermos = slowThermos;
     const palindromes = constraints
       .filter((c) => c.constraintType === "palindrome" && c.cells.length >= 2)
       .map((c) => c.cells);
