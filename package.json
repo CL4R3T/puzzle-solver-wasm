@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:wasm && tsc && vite build",
+    "build": "npm run build:wasm && npm run build:ci",
+    "build:ci": "tsc && vite build",
     "preview": "vite preview",
     "build:wasm": "wasm-pack build crates/solver-wasm --target bundler --out-dir ../../pkg"
   },
