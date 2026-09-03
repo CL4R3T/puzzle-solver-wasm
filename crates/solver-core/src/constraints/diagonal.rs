@@ -1,10 +1,10 @@
-use crate::constraint::{propagate_units, Constraint};
+use crate::constraint::{propagate_all_different, Constraint, Unit};
 use crate::state::SolverState;
 use crate::types::ValidationResult;
 
 /// X-Sudoku diagonal constraint: no duplicates on either the main or anti diagonal.
 pub struct DiagonalConstraint {
-    units: Vec<Vec<(usize, usize)>>,
+    units: Vec<Unit>,
 }
 
 impl DiagonalConstraint {
@@ -15,11 +15,15 @@ impl DiagonalConstraint {
             units: vec![main_diag, anti_diag],
         }
     }
+
+    pub(crate) fn units(&self) -> &[Unit] {
+        &self.units
+    }
 }
 
 impl Constraint for DiagonalConstraint {
     fn propagate(&self, state: &mut SolverState) -> i32 {
-        propagate_units(state, &self.units)
+        propagate_all_different(state, &self.units)
     }
 
     fn validate(&self, state: &SolverState) -> ValidationResult {

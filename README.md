@@ -35,15 +35,20 @@ puzzle-solver-wasm/
 │   ├── solver-core/        # 纯 Rust 求解引擎（平台无关，可 cargo test）
 │   │   └── src/
 │   │       ├── solver.rs        # 核心求解器：约束传播 + 回溯 + MRV 启发式
-│   │       ├── constraint.rs    # Constraint trait + propagate_units 共享逻辑
-│   │       ├── constraints/     # 7 种约束实现
+│   │       ├── constraint.rs    # Constraint trait + all-different 共享传播
+│   │       ├── constraints/     # 8 种约束实现
 │   │       │   ├── row.rs            # 行不重复
 │   │       │   ├── column.rs         # 列不重复
 │   │       │   ├── box_constraint.rs # 宫格不重复（可自定义形状）
 │   │       │   ├── diagonal.rs       # 对角线不重复（X-Sudoku）
 │   │       │   ├── killer_cage.rs    # 杀手笼（求和 + 不重复）
 │   │       │   ├── thermo.rs         # 温度计（严格递增路径）
+│   │       │   ├── slow_thermo.rs    # 慢温度计（非递减路径）
 │   │       │   └── palindrome.rs     # 回文线（对称路径）
+│   │       ├── strategy.rs      # SolvingStrategy 推理策略接口
+│   │       ├── strategies/      # 可组合的候选推理步骤
+│   │       │   ├── naked_single.rs   # 显性单数
+│   │       │   └── hidden_single.rs  # 隐性单数
 │   │       ├── state.rs         # 位掩码棋盘状态
 │   │       ├── types.rs         # SolveResult / ValidationResult
 │   │       └── params.rs        # JSON 参数解析
@@ -87,7 +92,7 @@ solver-wasm crate    ← #[wasm_bindgen] 入口函数
 solver-core crate    ← 约束传播 + 回溯搜索
 ```
 
-求解算法：**位掩码 CSP → 固定点约束传播 → 回溯搜索（MRV 启发式）**，和 Python 版算法完全一致。
+求解算法：**位掩码 CSP → 约束传播 + 可组合推理策略 → 回溯搜索（MRV 启发式）**。约束定义答案是否合法；策略只推导候选数，不引入新的题目规则。
 
 ## 支持的约束类型
 

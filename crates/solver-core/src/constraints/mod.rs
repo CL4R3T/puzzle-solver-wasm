@@ -7,7 +7,7 @@ pub mod row;
 pub mod slow_thermo;
 pub mod thermo;
 
-use crate::constraint::Constraint;
+use crate::constraint::{Constraint, Unit};
 use crate::state::SolverState;
 use crate::types::ValidationResult;
 
@@ -30,6 +30,24 @@ pub enum ConstraintKind {
     Thermo(ThermoConstraint),
     SlowThermo(SlowThermoConstraint),
     Palindrome(PalindromeConstraint),
+}
+
+impl ConstraintKind {
+    /// Return units whose cells must all hold different values.
+    ///
+    /// Solving strategies can consume this structural information without
+    /// becoming part of the constraint implementations themselves.
+    pub(crate) fn all_different_units(&self) -> Option<&[Unit]> {
+        match self {
+            Self::Row(c) => Some(c.units()),
+            Self::Column(c) => Some(c.units()),
+            Self::Box(c) => Some(c.units()),
+            Self::Diagonal(c) => Some(c.units()),
+            Self::KillerCage(_) | Self::Thermo(_) | Self::SlowThermo(_) | Self::Palindrome(_) => {
+                None
+            }
+        }
+    }
 }
 
 impl Constraint for ConstraintKind {
