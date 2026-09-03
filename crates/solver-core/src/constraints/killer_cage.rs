@@ -32,7 +32,7 @@ impl KillerCageConstraint {
         let mut vals = Vec::new();
         let mut m = mask;
         while m != 0 {
-            let lsb = m & m.wrapping_neg();
+            let lsb = m.isolate_lowest_one();
             vals.push(lsb.trailing_zeros() + 1);
             m ^= lsb;
         }
