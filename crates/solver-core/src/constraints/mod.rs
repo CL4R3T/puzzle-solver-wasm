@@ -33,10 +33,13 @@ pub enum ConstraintKind {
 }
 
 impl ConstraintKind {
-    /// Return units whose cells must all hold different values.
+    /// Return complete permutation units used by Sudoku-style deductions.
     ///
-    /// Solving strategies can consume this structural information without
-    /// becoming part of the constraint implementations themselves.
+    /// Every returned unit contains `n` cells over the domain `1..=n`, so an
+    /// all-different rule also requires every value to appear exactly once.
+    /// This stronger invariant makes deductions such as hidden singles valid.
+    /// Partial all-different groups, such as killer cages, are intentionally
+    /// excluded because they do not require every value to have a position.
     pub(crate) fn all_different_units(&self) -> Option<&[Unit]> {
         match self {
             Self::Row(c) => Some(c.units()),

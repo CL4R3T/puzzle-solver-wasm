@@ -26,9 +26,9 @@ impl SolvingStrategy for StrategyKind {
 
 /// Build the standard strategy pipeline from the supplied constraints.
 ///
-/// Hidden-single detection needs the all-different units exposed by row,
-/// column, box, and diagonal constraints. Other constraint types do not add
-/// units to this strategy.
+/// Hidden-single detection consumes complete permutation units exposed by row,
+/// column, box, and diagonal constraints. Partial all-different groups such as
+/// killer cages do not add units to this strategy.
 pub fn build_default_strategies(constraints: &[ConstraintKind]) -> Vec<StrategyKind> {
     let units: Vec<Unit> = constraints
         .iter()
