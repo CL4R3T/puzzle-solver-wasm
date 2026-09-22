@@ -71,7 +71,7 @@ impl SolverState {
         let mut vals = Vec::new();
         let mut m = mask;
         while m != 0 {
-            let lsb = m & m.wrapping_neg(); // isolate lowest set bit
+            let lsb = m.isolate_lowest_one();
             let idx = lsb.trailing_zeros(); // 0-based index
             vals.push(idx + 1); // 1-based value
             m ^= lsb;

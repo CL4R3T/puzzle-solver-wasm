@@ -1,22 +1,25 @@
-use crate::constraint::{propagate_units, Constraint};
+use crate::constraint::{propagate_all_different, Constraint, Unit};
 use crate::state::SolverState;
 use crate::types::ValidationResult;
 
 pub struct RowConstraint {
-    units: Vec<Vec<(usize, usize)>>,
+    units: Vec<Unit>,
 }
 
 impl RowConstraint {
     pub fn new(n: usize) -> Self {
-        let units: Vec<Vec<(usize, usize)>> =
-            (0..n).map(|r| (0..n).map(|c| (r, c)).collect()).collect();
+        let units: Vec<Unit> = (0..n).map(|r| (0..n).map(|c| (r, c)).collect()).collect();
         Self { units }
+    }
+
+    pub(crate) fn units(&self) -> &[Unit] {
+        &self.units
     }
 }
 
 impl Constraint for RowConstraint {
     fn propagate(&self, state: &mut SolverState) -> i32 {
-        propagate_units(state, &self.units)
+        propagate_all_different(state, &self.units)
     }
 
     fn validate(&self, state: &SolverState) -> ValidationResult {

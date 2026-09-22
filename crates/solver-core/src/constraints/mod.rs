@@ -7,7 +7,7 @@ pub mod row;
 pub mod slow_thermo;
 pub mod thermo;
 
-use crate::constraint::Constraint;
+use crate::constraint::{Constraint, Unit};
 use crate::state::SolverState;
 use crate::types::ValidationResult;
 
@@ -30,6 +30,27 @@ pub enum ConstraintKind {
     Thermo(ThermoConstraint),
     SlowThermo(SlowThermoConstraint),
     Palindrome(PalindromeConstraint),
+}
+
+impl ConstraintKind {
+    /// Return complete permutation units used by Sudoku-style deductions.
+    ///
+    /// Every returned unit contains `n` cells over the domain `1..=n`, so an
+    /// all-different rule also requires every value to appear exactly once.
+    /// This stronger invariant makes deductions such as hidden singles valid.
+    /// Partial all-different groups, such as killer cages, are intentionally
+    /// excluded because they do not require every value to have a position.
+    pub(crate) fn all_different_units(&self) -> Option<&[Unit]> {
+        match self {
+            Self::Row(c) => Some(c.units()),
+            Self::Column(c) => Some(c.units()),
+            Self::Box(c) => Some(c.units()),
+            Self::Diagonal(c) => Some(c.units()),
+            Self::KillerCage(_) | Self::Thermo(_) | Self::SlowThermo(_) | Self::Palindrome(_) => {
+                None
+            }
+        }
+    }
 }
 
 impl Constraint for ConstraintKind {

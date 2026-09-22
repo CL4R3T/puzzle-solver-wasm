@@ -1,6 +1,8 @@
 use crate::constraint::Constraint;
 use crate::constraints::ConstraintKind;
 use crate::state::SolverState;
+use crate::strategies::{build_default_strategies, StrategyKind};
+use crate::strategy::SolvingStrategy;
 use crate::types::{SolveResult, ValidationResult};
 
 /// Generic constraint-based number-puzzle solver.
@@ -11,6 +13,7 @@ use crate::types::{SolveResult, ValidationResult};
 pub struct NumberPuzzleSolver {
     state: SolverState,
     constraints: Vec<ConstraintKind>,
+    strategies: Vec<StrategyKind>,
     /// Number of propagation cycles performed so far.
     iteration_count: u64,
     /// Maximum propagation cycles before timing out.
@@ -23,9 +26,11 @@ impl NumberPuzzleSolver {
     /// Create a new solver from a board and a set of constraints.
     pub fn new(board: Vec<Vec<u32>>, constraints: Vec<ConstraintKind>) -> Result<Self, String> {
         let state = SolverState::new(board)?;
+        let strategies = build_default_strategies(&constraints);
         Ok(Self {
             state,
             constraints,
+            strategies,
             iteration_count: 0,
             max_iterations: 10_000_000,
             solve_start: None,
@@ -38,6 +43,12 @@ impl NumberPuzzleSolver {
         self
     }
 
+    /// Override the default deduction-strategy pipeline.
+    pub fn with_strategies(mut self, strategies: Vec<StrategyKind>) -> Self {
+        self.strategies = strategies;
+        self
+    }
+
     // ── Timeout ─────────────────────────────────────────────
 
     fn check_timeout(&mut self) -> bool {
@@ -47,8 +58,9 @@ impl NumberPuzzleSolver {
 
     // ── Constraint propagation ──────────────────────────────
 
-    /// Fixed-point iteration: naked-single detection → constraint propagation,
-    /// repeating until no further progress or a contradiction is found.
+    /// Fixed-point iteration over constraint propagation and deduction
+    /// strategies, repeating until no further progress or a contradiction is
+    /// found.
     ///
     /// Returns `true` if the board is consistent (may still have unknowns),
     /// `false` if a contradiction was detected.
@@ -59,31 +71,20 @@ impl NumberPuzzleSolver {
             }
             let mut made_progress = false;
 
-            // Naked singles: cells with exactly one candidate → assign it.
-            for r in 0..self.state.n {
-                for c in 0..self.state.n {
-                    if self.state.cells[r][c] == 0 {
-                        let bits = self.state.pos[r][c].count_ones();
-                        if bits == 0 {
-                            return false; // contradiction: no possible value
-                        }
-                        if bits == 1 {
-                            let val = self
-                                .state
-                                .mask_to_values(self.state.pos[r][c])
-                                .into_iter()
-                                .next()
-                                .unwrap();
-                            self.state.cells[r][c] = val;
-                            made_progress = true;
-                        }
-                    }
+            // Apply direct consequences of the puzzle's rules.
+            for constraint in &self.constraints {
+                let result = constraint.propagate(&mut self.state);
+                if result == -1 {
+                    return false;
+                }
+                if result > 0 {
+                    made_progress = true;
                 }
             }
 
-            // Run each constraint's propagation
-            for constraint in &self.constraints {
-                let result = constraint.propagate(&mut self.state);
+            // Apply reusable deductions derived from those constraints.
+            for strategy in &self.strategies {
+                let result = strategy.apply(&mut self.state);
                 if result == -1 {
                     return false;
                 }
@@ -108,8 +109,11 @@ impl NumberPuzzleSolver {
         let mut min_size = self.state.n as u32 + 1;
         for r in 0..self.state.n {
             for c in 0..self.state.n {
+                if self.state.cells[r][c] != 0 {
+                    continue;
+                }
                 let s = self.state.pos[r][c].count_ones();
-                if s > 1 && s < min_size {
+                if s < min_size {
                     min_size = s;
                     best = Some((r, c));
                 }
@@ -129,7 +133,7 @@ impl NumberPuzzleSolver {
 
         let cell = self.find_min_cell();
         if cell.is_none() {
-            // All cells determined — solved!
+            // No unfilled cells remain — solved!
             return true;
         }
 
@@ -334,6 +338,16 @@ mod tests {
         ];
         let mut solver = NumberPuzzleSolver::new(board, constraints).unwrap();
         assert!(solver.solve().is_some());
+    }
+
+    #[test]
+    fn test_search_remains_correct_without_deduction_strategies() {
+        let board = vec![vec![0]];
+        let mut solver = NumberPuzzleSolver::new(board, Vec::new())
+            .unwrap()
+            .with_strategies(Vec::new());
+
+        assert_eq!(solver.solve(), Some(vec![vec![1]]));
     }
 
     // ── Constraint validation ─────────────────────────────────
